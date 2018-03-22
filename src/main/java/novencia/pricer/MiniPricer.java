@@ -11,7 +11,7 @@ public class MiniPricer {
     }
 
     public Double forecastPrice(Double actualPrice, Double averageVolatility, LocalDate forecastDate) {
-        long days = calendar.getDaysFrom(forecastDate);
+        long days = calendar.getWorkingDaysFrom(forecastDate);
         double estimateVariation = Math.pow((1 + averageVolatility / 100), days);
         return actualPrice * estimateVariation;
     }
