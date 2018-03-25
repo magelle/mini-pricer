@@ -15,11 +15,14 @@ public class MiniPricerTest {
     private static final LocalDate FORECAST_DATE = LocalDate.now();
     private Calendar calendar;
     private MiniPricer miniPricer;
+    private RandomVolatilitySign randomeVolatilitySign;
 
     @Before
     public void setup() {
         calendar = mock(Calendar.class);
-        miniPricer = new MiniPricer(calendar);
+        randomeVolatilitySign = mock(RandomVolatilitySign.class);
+        when(randomeVolatilitySign.next()).thenReturn(1);
+        miniPricer = new MiniPricer(calendar, randomeVolatilitySign);
     }
 
     @Test
@@ -41,6 +44,18 @@ public class MiniPricerTest {
 
         Double estimatePrice = miniPricer.forecastPrice(actualPrice, averageVolatility, FORECAST_DATE);
         assertThat(estimatePrice, closeTo(60.75, 0.01));
+    }
+
+    @Test
+    public void should_randomly_add_remove_volatility_or_do_nothing() {
+        forecastDateIsFarFromNowByDays(3L);
+        when(randomeVolatilitySign.next()).thenReturn(1,0,-1);
+
+        Double actualPrice = 8D;
+        Double averageVolatility = 50D;
+
+        Double estimatePrice = miniPricer.forecastPrice(actualPrice, averageVolatility, FORECAST_DATE);
+        assertThat(estimatePrice, closeTo(6, 0.01));
     }
 
     private void forecastDateIsFarFromNowByDays(long l) {

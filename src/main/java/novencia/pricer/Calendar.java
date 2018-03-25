@@ -3,7 +3,6 @@ package novencia.pricer;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import static java.time.DayOfWeek.SATURDAY;

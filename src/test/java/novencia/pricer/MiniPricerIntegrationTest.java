@@ -7,8 +7,7 @@ import java.time.LocalDate;
 
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MiniPricerIntegrationTest {
 
@@ -17,11 +16,14 @@ public class MiniPricerIntegrationTest {
 
     private MiniPricer miniPricer;
     private Calendar calendar;
+    private RandomVolatilitySign randomeVolatilitySign;
 
     @Before
     public void setup() {
         calendar = spy(new Calendar());
-        miniPricer = new MiniPricer(calendar);
+        randomeVolatilitySign = mock(RandomVolatilitySign.class);
+        when(randomeVolatilitySign.next()).thenReturn(1);
+        miniPricer = new MiniPricer(calendar, randomeVolatilitySign);
     }
 
     @Test
@@ -64,6 +66,19 @@ public class MiniPricerIntegrationTest {
         Double actualPrice = 4D;
         Double averageVolatility = 50D;
         LocalDate forecastDate = _13_OF_DECEMBER.plusDays(2);
+
+        Double estimatePrice = miniPricer.forecastPrice(actualPrice, averageVolatility, forecastDate);
+        assertThat(estimatePrice, closeTo(6, 0.01));
+    }
+
+    @Test
+    public void should_randomly_add_remove_volatility_or_do_nothing() {
+        todayIs(A_MONDAY);
+        when(randomeVolatilitySign.next()).thenReturn(1,0,-1);
+
+        Double actualPrice = 8D;
+        Double averageVolatility = 50D;
+        LocalDate forecastDate = A_MONDAY.plusDays(3);
 
         Double estimatePrice = miniPricer.forecastPrice(actualPrice, averageVolatility, forecastDate);
         assertThat(estimatePrice, closeTo(6, 0.01));
